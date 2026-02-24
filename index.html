@@ -1,0 +1,841 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Believers Praise Christian School</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <style>
+    /* ===== HERO BACKGROUND ===== */
+    #home {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 0 5%;
+     /* background-image: url('https://raw.githubusercontent.com/online-school-portal/BPS/8714bf2fac15d55f8c8b781b5a5d163cc6cde776/background.jpg'); */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      position: relative;
+    }
+
+    /* Dark overlay for better text readability */
+    #home::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(0, 0, 50, 0.7) 0%, rgba(0, 0, 80, 0.5) 100%);
+      z-index: 0;
+    }
+
+    /* ===== GENERAL ===== */
+    * { box-sizing: border-box; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: #fff;
+      color: #000;
+      overflow-x: hidden;
+    }
+    h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; margin: 0; }
+    section { padding: 80px 10%; }
+
+    /* ===== NAVBAR ===== */
+    .navbar {
+      position: fixed;
+      top: 0; width: 100%;
+      background: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 10%;
+      z-index: 1000;
+      transition: box-shadow 0.3s ease;
+      border-bottom: 1px solid #ccc;
+    }
+    .navbar.scrolled { box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+
+    .navbar .logo {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: navy;
+      white-space: nowrap;
+    }
+
+    /* Hamburger only */
+    .nav-links {
+      position: fixed;
+      top: 50px;
+      right: -200px;
+      width: 180px;
+      height: calc(100% - 50px);
+      background: #fff;
+      flex-direction: column;
+      align-items: center;
+      justify-content: start;
+      padding-top: 20px;
+      gap: 15px;
+      transition: right 0.3s ease;
+      border-left: 1px solid #ccc;
+      display: flex;
+    }
+    .nav-links a {
+      color: navy;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 1rem;
+      width: 100%;
+      text-align: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .nav-links.active { right: 0; }
+
+    /* Hamburger icon */
+    .hamburger {
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      gap: 5px;
+      z-index: 1100;
+    }
+    .hamburger div {
+      width: 25px;
+      height: 3px;
+      background: navy;
+      transition: all 0.3s ease;
+    }
+    .hamburger.active div:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+    .hamburger.active div:nth-child(2) { opacity: 0; }
+    .hamburger.active div:nth-child(3) {
+      transform: rotate(-45deg) translate(5px, -5px);
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 0 5%;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 40px 50px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      max-width: 700px;
+      animation: fadeInUp 1s ease-out forwards;
+    }
+
+    .hero h1 {
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      margin-bottom: 15px;
+      color: #fff;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .hero h2 {
+      font-size: clamp(1rem, 3vw, 1.4rem);
+      font-weight: 500;
+      color: #f0f0f0;
+      margin-bottom: 20px;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .hero p {
+      font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+      color: #e0e0e0;
+      max-width: 600px;
+      line-height: 1.8;
+      margin-bottom: 25px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .hero .btn-primary {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+      border: none;
+      color: #fff;
+      padding: 14px 35px;
+      font-size: 1rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+      box-shadow: 0 4px 15px rgba(30, 58, 138, 0.4);
+    }
+
+    .hero .btn-primary:hover {
+      background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(30, 58, 138, 0.5);
+    }
+
+    .hero .btn-secondary {
+      background: transparent;
+      border: 2px solid #fff;
+      color: #fff;
+      padding: 12px 30px;
+      font-size: 1rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .hero .btn-secondary:hover {
+      background: #fff;
+      color: navy;
+      transform: translateY(-3px);
+    }
+
+    /* Floating badge */
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255, 215, 0, 0.9);
+      color: #1e3a8a;
+      padding: 8px 20px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      animation: pulse 2s infinite;
+    }
+
+    /* Scroll indicator */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1;
+      animation: bounce 2s infinite;
+    }
+
+    .scroll-indicator a {
+      color: #fff;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.8rem;
+      opacity: 0.8;
+      transition: opacity 0.3s;
+    }
+
+    .scroll-indicator a:hover {
+      opacity: 1;
+    }
+
+    .scroll-indicator svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {
+        transform: translateX(-50%) translateY(0);
+      }
+      40% {
+        transform: translateX(-50%) translateY(-10px);
+      }
+      60% {
+        transform: translateX(-50%) translateY(-5px);
+      }
+    }
+
+    /* ===== ABOUT ===== */
+    .about { text-align: center; }
+    .about h3 { color: navy; font-size: 2rem; margin-bottom: 10px; }
+    .about p { color: #333; font-size: 1rem; max-width: 800px; margin: 20px auto; line-height: 1.7; }
+    .profile-img { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 3px solid navy; margin: 20px 0; }
+
+    /* ===== CONTACT ===== */
+    .contact { text-align: center; padding-bottom: 80px; border-top: 1px solid #ccc; }
+    .contact h3 { font-size: 1.8rem; color: navy; margin-bottom: 20px; }
+    .contact p { color: #333; font-size: 1rem; }
+    .contact button { background: navy; color: #fff; border: none; border-radius: 8px; padding: 12px 30px; cursor: pointer; transition: 0.3s; }
+    .contact button:hover { background: #333; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .hero-content {
+        padding: 30px 25px;
+        margin: 0 15px;
+      }
+      .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+      .hero .btn-primary,
+      .hero .btn-secondary {
+        width: 100%;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero h1 { font-size: 1.5rem; }
+      .hero h2 { font-size: 1rem; }
+      .hero p { font-size: 0.9rem; }
+      .hero-content { padding: 25px 20px; }
+      .navbar .logo { font-size: 1.2rem; }
+      .nav-links a { font-size: 0.9rem; }
+      .hero-badge { font-size: 0.75rem; padding: 6px 15px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar" id="navbar">
+    <div class="logo">Believers Praise School</div>
+    <div class="hamburger" id="hamburger">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    <div class="nav-links" id="navLinks">
+      <a href="#home">Home</a>
+      <a href="#about">About</a>
+      <a href="#result">Results</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </nav>
+
+  <!-- ===== HERO ===== -->
+  <section id="home" class="hero">
+    <div class="hero-content">
+      <span class="hero-badge">✝️ God First</span>
+      <h1>Believers Praise Christian School</h1>
+      <h2>Empowering Future Leaders, In Christ</h2>
+      <p>Welcome to your online portal. Excellence in character and education begins with faith. Join us on a journey of academic excellence and spiritual growth.</p>
+      <div class="hero-buttons">
+        <a href="#result" class="btn-primary">Check Results</a>
+        <a href="#about" class="btn-secondary">Learn More</a>
+      </div>
+    </div>
+    
+    <!-- Scroll Indicator -->
+    <div class="scroll-indicator">
+      <a href="#about">
+        <span>Scroll Down</span>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- ===== ABOUT ===== -->
+  <section id="about" class="about">
+    <h3>About Us</h3>
+    <img id="profileImg" src="https://raw.githubusercontent.com/online-school-portal/BPS/8714bf2fac15d55f8c8b781b5a5d163cc6cde776/logo.jpg" alt="School Logo" class="profile-img">
+    <p>
+      Welcome to Believers Praise Christian School, where learning and growth go hand in hand.
+      Our dedicated teachers guide students to reach their full potential.
+      We foster curiosity, creativity, and critical thinking in every classroom.
+      Beyond academics, we encourage sports, arts, and community involvement.
+      At Believers Praise Christian School, we prepare students to become confident, caring leaders.
+    </p>
+  </section>
+
+  <!-- ===== RESULTS SECTION ===== -->
+  <section id="result" class="py-20 bg-gray-50">
+    <div class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-md">
+      <h2 class="text-2xl font-bold text-center text-blue-700 mb-6">Student Result Checker</h2>
+
+      <form id="checkForm" class="space-y-5">
+          <div>
+              <label class="block font-semibold mb-1">Student ID</label>
+              <input type="text" id="studentId"
+                     class="w-full p-3 border rounded-lg focus:ring focus:ring-blue-300"
+                     placeholder="Enter Student ID" required />
+          </div>
+
+          <div>
+              <label class="block font-semibold mb-1">Term</label>
+              <select id="term"
+                      class="w-full p-3 border rounded-lg focus:ring focus:ring-blue-300">
+                  <option>First Term</option>
+                  <option>Second Term</option>
+                  <option>Third Term</option>
+              </select>
+          </div>
+
+          <div>
+              <label class="block font-semibold mb-1">Session</label>
+              <input type="text" id="session"
+                     placeholder="2024/2025"
+                     class="w-full p-3 border rounded-lg focus:ring focus:ring-blue-300"
+                     required />
+          </div>
+
+          <button type="submit"
+                  class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition">
+              Check Result
+          </button>
+      </form>
+
+      <div id="resultBox" class="mt-8 hidden bg-gray-100 p-4 rounded-lg">
+        <h3 class="text-lg font-bold mb-2">Result Details</h3>
+        <table id="resultTable" class="w-full text-sm border-collapse hidden">
+            <thead>
+                <tr class="bg-blue-600 text-white">
+                    <th class="border px-2 py-1">Subject</th>
+                    <th class="border px-2 py-1">Test 1</th>
+                    <th class="border px-2 py-1">Test 2</th>
+                    <th class="border px-2 py-1">Exam</th>
+                    <th class="border px-2 py-1">Total</th>
+                    <th class="border px-2 py-1">Grade</th>
+                </tr>
+            </thead>
+            <tbody id="resultTableBody"></tbody>
+        </table>
+        <div id="studentInfo" class="mt-2 font-medium"></div>
+      </div>
+
+      <!-- ===== TEACHER LOGIN PAGINATION ===== -->
+      <div class="mt-6 text-center">
+        <span>Not a student? </span>
+        <button id="teacherLoginBtn" class="text-blue-600 underline cursor-pointer hover:text-blue-800">Login here</button>
+      </div>
+    </div>
+  </section>
+
+<!-- ===== LOGIN POPUP ===== -->
+<div id="loginPopup" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white p-6 rounded-xl w-80">
+    <h3 class="text-lg font-bold mb-4 text-center text-blue-700">Login</h3>
+
+    <input type="text" id="loginIdInput" placeholder="Enter your ID"
+      class="w-full p-3 border rounded-lg mb-4 focus:ring focus:ring-blue-300">
+
+    <div class="flex justify-end gap-2">
+      <button id="loginCancel" class="px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400">Cancel</button>
+      <button id="loginSubmit" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">Login</button>
+    </div>
+
+    <p id="loginError" class="text-red-600 mt-2 text-sm hidden">Invalid ID</p>
+  </div>
+</div>
+
+  <!-- ===== CONTACT ===== -->
+  <section id="contact" class="contact">
+    <h3>Contact Us</h3>
+    <p>Reach out to us via WhatsApp to learn more or ask questions.</p>
+    <a href="https://wa.me/2347034644748" target="_blank">
+      <button>Message on WhatsApp</button>
+    </a>
+  </section>
+
+  <script>
+    // Hamburger toggle
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
+    hamburger.addEventListener('click', () => {
+      navLinks.classList.toggle('active');
+      hamburger.classList.toggle('active');
+    });
+
+    // Smooth scroll and close menu when a nav link is clicked
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = link.getAttribute('href').slice(1);
+        const targetSection = document.getElementById(targetId);
+        if (targetSection) {
+          targetSection.scrollIntoView({ behavior: 'smooth' });
+          navLinks.classList.remove('active');
+          hamburger.classList.remove('active');
+        }
+      });
+    });
+
+    // Smooth scroll for hero buttons
+    document.querySelectorAll('.hero-buttons a, .scroll-indicator a').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = link.getAttribute('href').slice(1);
+        const targetSection = document.getElementById(targetId);
+        if (targetSection) {
+          targetSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    // Navbar shadow on scroll
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 20) navbar.classList.add('scrolled');
+      else navbar.classList.remove('scrolled');
+    });
+    
+    
+    // ===== Result Checker Script (Corrected) =====
+const form = document.getElementById("checkForm");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const studentIdInput = document.getElementById("studentId").value.trim();
+  const term = document.getElementById("term").value.trim();
+  const session = document.getElementById("session").value.trim();
+
+  if (!studentIdInput || !term || !session) {
+    alert("Please enter Student ID, Term, and Session.");
+    return;
+  }
+
+  try {
+    // ---------- STEP 1: Look up student (human-readable ID → UUID) ----------
+    const { data: studentData, error: studentErr } = await supabaseClient
+      .from("students")
+      .select("id, full_name, sex, student_id")
+      .eq("student_id", studentIdInput)
+      .single();
+
+    if (studentErr || !studentData) {
+      console.error(studentErr);
+      return alert("Student not found. Please check the Student ID.");
+    }
+
+    const studentUUID = studentData.id;
+
+    // ---------- STEP 2: Fetch student's result (UUID FK) ----------
+    const { data: row, error: resultErr } = await supabaseClient
+      .from("results")
+      .select("*, students(full_name, student_id, sex)")
+      .eq("student_id", studentUUID)
+      .eq("term", term)
+      .eq("session", session)
+      .single();
+
+    if (resultErr || !row) {
+      console.error(resultErr);
+      return alert("No results found for this student in the selected term/session.");
+    }
+
+    // ---------- Parse academic results ----------
+    let results = [];
+    try {
+      results = Array.isArray(row.results)
+        ? row.results
+        : JSON.parse(row.results ?? "[]");
+    } catch {
+      results = [];
+    }
+
+    const numSubjects = results.length;
+    const totalMarks = results.reduce(
+      (sum, s) => sum + (s.test1 || 0) + (s.test2 || 0) + (s.exam || 0),
+      0
+    );
+
+    const maxTotal = numSubjects * 100;
+    const percentage = maxTotal
+      ? ((totalMarks / maxTotal) * 100).toFixed(2)
+      : "0.00";
+
+    const overallGrade = calculateGrade(totalMarks);
+
+    // ---------- STEP 3: Class position ----------
+    const { data: classData } = await supabaseClient
+      .from("results")
+      .select("student_id, results")
+      .eq("class", row.class)
+      .eq("term", term)
+      .eq("session", session);
+
+    let classTotals = [];
+
+    if (classData?.length) {
+      classTotals = classData
+        .map(r => {
+          let rResults = [];
+          try {
+            rResults = Array.isArray(r.results)
+              ? r.results
+              : JSON.parse(r.results ?? "[]");
+          } catch {}
+
+          const total = rResults.reduce(
+            (s, x) => s + (x.test1 || 0) + (x.test2 || 0) + (x.exam || 0),
+            0
+          );
+
+          return { student_id: r.student_id, total };
+        })
+        .sort((a, b) => b.total - a.total);
+    }
+
+    const index = classTotals.findIndex(
+      s => s.student_id === studentUUID
+    );
+
+    const position = index === -1 ? null : index + 1;
+
+    const formatPosition = (n) => {
+      if (!n) return "-";
+      if (n % 100 >= 11 && n % 100 <= 13) return `${n}th`;
+      switch (n % 10) {
+        case 1: return `${n}st`;
+        case 2: return `${n}nd`;
+        case 3: return `${n}rd`;
+        default: return `${n}th`;
+      }
+    };
+
+    // ---------- STEP 4: Subject rows ----------
+    const rowsHtml = results.map(s => {
+      const total = (s.test1 || 0) + (s.test2 || 0) + (s.exam || 0);
+      const grade = calculateGrade(total);
+      return `
+        <tr>
+          <td class="border px-2 py-1 uppercase">${s.subject_name ?? "N/A"}</td>
+          <td class="border px-2 py-1 text-center">${s.test1 ?? 0}</td>
+          <td class="border px-2 py-1 text-center">${s.test2 ?? 0}</td>
+          <td class="border px-2 py-1 text-center">${s.exam ?? 0}</td>
+          <td class="border px-2 py-1 text-center font-bold">${total}</td>
+          <td class="border px-2 py-1 text-center">${grade}</td>
+          <td class="border px-2 py-1 text-center italic">${getComment(grade)}</td>
+        </tr>
+      `;
+    }).join("");
+
+    const summaryRowHtml = `
+      <tr class="bg-gray-200 font-bold">
+        <td class="border px-2 py-1 text-center">${numSubjects} Subjects</td>
+        <td colspan="3" class="border px-2 py-1 text-center">${totalMarks}</td>
+        <td class="border px-2 py-1 text-center">${percentage}%</td>
+        <td class="border px-2 py-1 text-center">${overallGrade}</td>
+        <td class="border px-2 py-1 text-center italic">${getComment(overallGrade)}</td>
+      </tr>
+    `;
+
+    // ---------- STEP 5: Psychomotor & Affective ----------
+    const psychomotor = row.psychomotor_domain ?? {};
+    const affective = row.affective_domain ?? {};
+
+    const formatName = s =>
+      s.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+
+    const buildDomain = obj =>
+      Object.entries(obj).map(([k, v]) => `
+        <tr>
+          <td class="border px-2 py-1 font-bold">${formatName(k)}</td>
+          ${[100,85,75,65,55].map(x =>
+            `<td class="border px-2 py-1 text-center">${v === x ? "✔" : ""}</td>`
+          ).join("")}
+        </tr>
+      `).join("");
+
+    // ---------- STEP 6: Generate report ----------
+    const reportHtml = generateReportHTML({
+      student: row.students,
+      studentId: row.student_id,
+      className: row.class,
+      gender: row.students.sex,
+      term: row.term,
+      session: row.session,
+      position: formatPosition(position),
+      totalStudents: classTotals.length,
+      resultsHtml: rowsHtml,
+      summaryHtml: summaryRowHtml,
+      psychomotorHtml: buildDomain(psychomotor),
+      affectiveHtml: buildDomain(affective),
+      attendance: row.attendance ?? {},
+      termDuration: row.term_duration ?? {},
+      teacherComment: row.teacher_comment ?? "...",
+      headmasterComment: row.headmaster_comment ?? "..."
+    });
+
+    const win = window.open("", "_blank");
+    win.document.write(reportHtml);
+    win.document.close();
+
+  } catch (err) {
+    console.error(err);
+    alert("Error loading report.");
+  }
+});
+    
+    
+  const SUPABASE_URL = "https://irelkjvppoisvjpopdpb.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlyZWxranZwcG9pc3ZqcG9wZHBiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNTUwMDAsImV4cCI6MjA4MTkzMTAwMH0.osF4wEZ-zm3cXScD1W8gMOkG81O2TbDJ8L47YvIIryw";
+
+  const supabaseClient = supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const loginSubmit = document.getElementById('loginSubmit');
+  const loginPopup = document.getElementById('loginPopup');
+  const loginCancel = document.getElementById('loginCancel');
+  const loginIdInput = document.getElementById('loginIdInput');
+  const loginError = document.getElementById('loginError');
+  const teacherLoginBtn = document.getElementById('teacherLoginBtn');
+
+  console.log("Login script initialized");
+
+  // Open login popup
+  function openLoginPopup() {
+    loginPopup.classList.remove('hidden');
+    loginIdInput.value = '';
+    loginError.classList.add('hidden');
+    loginError.textContent = '';
+    loginIdInput.focus();
+  }
+
+  // Hook buttons
+  if (teacherLoginBtn) teacherLoginBtn.addEventListener('click', openLoginPopup);
+  if (loginCancel) loginCancel.addEventListener('click', () => loginPopup.classList.add('hidden'));
+
+  // Login submit
+  if (loginSubmit) {
+    loginSubmit.addEventListener('click', async () => {
+      const enteredId = loginIdInput.value.trim();
+      loginError.classList.add('hidden');
+      loginError.textContent = "";
+
+      console.log("Login button clicked, entered ID:", enteredId);
+
+      if (!enteredId) {
+        loginError.textContent = "Enter your ID";
+        loginError.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        // ---------------------------
+        // Admin login via plain fetch
+        // ---------------------------
+        console.log("Calling Admin edge function...");
+
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
+        const adminResp = await fetch(
+          "https://irelkjvppoisvjpopdpb.supabase.co/functions/v1/Admin-Login",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "apikey": "sb_publishable_s0oQslbfoX9yIw0vNe5KEQ_WfTme8vP",
+              "Authorization": "Bearer sb_publishable_s0oQslbfoX9yIw0vNe5KEQ_WfTme8vP"
+            },
+            body: JSON.stringify({ userId: enteredId }),
+            signal: controller.signal
+          }
+        );
+
+        clearTimeout(timeout);
+
+        console.log("Admin fetch finished. Status:", adminResp.status);
+
+        if (!adminResp.ok) {
+          throw new Error(`Admin fetch failed: ${adminResp.status} ${adminResp.statusText}`);
+        }
+
+        const adminData = await adminResp.json();
+        console.log("Admin function response:", adminData);
+
+        if (adminData.authorized && adminData.role === "admin") {
+          console.log("Admin login successful");
+          window.location.href = "admin.html";
+          return;
+        }
+
+        // ---------------------------
+        // Teacher login fallback
+        // ---------------------------
+        console.log("Not admin, checking teacher login...");
+
+        const { data: teacher, error: teacherError } = await supabaseClient
+          .from("teachers")
+          .select("*")
+          .eq("teacher_id", enteredId)
+          .single();
+
+        if (teacherError || !teacher) {
+          loginError.textContent = "Invalid ID";
+          loginError.classList.remove("hidden");
+          console.log("Teacher login failed:", teacherError);
+          return;
+        }
+
+        console.log("Teacher login successful:", teacher.teacher_id);
+        window.location.href = `teacher.html?teacherId=${teacher.teacher_id}`;
+
+      } catch (err) {
+        console.error("Login error:", err);
+        if (err.name === "AbortError") {
+          loginError.textContent = "Request timed out. Check your internet connection.";
+        } else {
+          loginError.textContent = "Something went wrong. Check console.";
+        }
+        loginError.classList.remove("hidden");
+      }
+    });
+  }
+});
+  </script>
+</body>
+</html>
