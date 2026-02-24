@@ -1,0 +1,595 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Teacher Dashboard</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Supabase -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+  <!-- Teacher Script -->
+  <script defer src="teacherScript.js"></script>
+
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-light: #eef2ff;
+      --primary-hover: #4338ca;
+      --bg-body: #f1f5f9;
+      --navy: #0f172a;
+      --text-main: #334155;
+      --text-muted: #64748b;
+      --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg-body);
+      color: var(--text-main);
+    }
+
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.875rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 1.5rem;
+    }
+
+    h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--navy);
+      border-bottom: 2px solid var(--primary-light);
+      padding-bottom: 8px;
+      margin-bottom: 20px;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      height: 70px;
+      background: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 5%;
+      box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+      z-index: 1000;
+    }
+
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .hamburger {
+      width: 40px;
+      height: 40px;
+      background: var(--primary-light);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .hamburger div {
+      width: 22px;
+      height: 2px;
+      background: var(--primary);
+    }
+
+    .nav-links {
+      position: fixed;
+      top: 70px;
+      right: -280px;
+      width: 260px;
+      height: calc(100% - 70px);
+      background: #fff;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: 0.4s;
+      border-left: 1px solid #e2e8f0;
+    }
+
+    .nav-links.active { right: 0; }
+
+    .nav-links button {
+      background: none;
+      border: none;
+      padding: 12px 16px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .nav-links button:hover {
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    /* SECTIONS */
+    .section {
+      padding: 100px 5% 50px;
+      max-width: 1200px;
+      margin: auto;
+      display: none;
+    }
+
+    .section.active { display: block; }
+
+    .form-card {
+      background: #fff;
+      padding: 32px;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      box-shadow: var(--card-shadow);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .data-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid #e2e8f0;
+      transition: 0.3s;
+    }
+
+    .data-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--primary);
+      box-shadow: 0 12px 20px rgba(0,0,0,0.1);
+    }
+
+    label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 15px;
+    }
+
+    input, select, textarea {
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 1.5px solid #e2e8f0;
+    }
+
+    button.save-btn {
+      background: var(--primary);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+    }
+    
+    #studentModal {
+  padding-top: 4rem; /* default for desktop */
+}
+
+@media (max-width: 640px) {
+  #studentModal {
+    padding-top: 6rem; /* a bit more for mobile */
+  }
+}
+  </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="logo">Teacher Dashboard</div>
+  <div class="hamburger" id="hamburger">
+    <div></div><div></div><div></div>
+  </div>
+</nav>
+
+<div class="nav-links" id="navLinks">
+  <button onclick="showSection('overview')">Overview</button>
+  <button onclick="showSection('students')">Students</button>
+  <button onclick="showSection('results')">Enter Results</button>
+  <button onclick="showSection('manageResults')">Manage Results</button>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<!-- OVERVIEW -->
+<section id="overview" class="section active">
+  <h1>Teacher Overview</h1>
+
+  <!-- Teacher Identity -->
+  <div class="data-card mb-6">
+    <h3>Teacher Profile</h3>
+    <p class="text-sm text-slate-500">Logged in as</p>
+    <p id="teacherName" class="text-lg font-semibold mt-1">—</p>
+    <p id="teacherIdDisplay" class="text-sm text-slate-500 mt-1">Teacher ID: —</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid">
+    <div class="data-card">
+      <h3>My Classes</h3>
+      <p class="text-3xl font-bold mt-2" id="assignedClassesCount">0</p>
+      <p class="text-sm text-slate-500 mt-1">Classes assigned to you</p>
+    </div>
+
+    <div class="data-card">
+      <h3>My Students</h3>
+      <p class="text-3xl font-bold mt-2" id="totalStudentsCount">0</p>
+      <p class="text-sm text-slate-500 mt-1">Across your classes</p>
+    </div>
+
+    <div class="data-card">
+      <h3>My Subjects</h3>
+      <p class="text-3xl font-bold mt-2" id="subjectsCount">0</p>
+      <p class="text-sm text-slate-500 mt-1">Subjects you teach</p>
+    </div>
+  </div>
+</section>
+
+<!-- STUDENTS SECTION -->
+<section id="students" class="section">
+  <h1>Students</h1>
+  <div class="form-card">
+    <div class="row">
+      <label>Filter by Class
+        <select id="studentClassFilter">
+          <option value="all">All</option>
+            <option>Pre-KG</option>
+            <option>KG 1</option>
+            <option>KG 2</option>
+            <option>KG 3</option>
+            <option>Primary 1</option>
+            <option>Primary 2</option>
+            <option>Primary 3</option>
+            <option>Primary 4</option>
+            <option>Primary 5</option>
+            <option>JSS 1</option>
+            <option>JSS 2</option>
+            <option>JSS 3</option>
+        </select>
+      </label>
+    </div>
+
+    <!-- Container to display student cards -->
+    <div id="studentsContainer" class="grid gap-4 mt-4"></div>
+  </div>
+</section>
+
+<!-- ADD RESULTS -->
+<section id="results" class="section">
+  <h1>Add Result</h1>
+  <div class="form-card">
+    <form id="resultForm">
+      <!-- Step 1: Select Class -->
+      <label>Class:
+        <select id="resultClass">
+          <option value="">Select class</option>
+            <option>Pre-KG</option>
+            <option>KG 1</option>
+            <option>KG 2</option>
+            <option>KG 3</option>
+            <option>Primary 1</option>
+            <option>Primary 2</option>
+            <option>Primary 3</option>
+            <option>Primary 4</option>
+            <option>Primary 5</option>
+            <option>JSS 1</option>
+            <option>JSS 2</option>
+            <option>JSS 3</option>
+        </select>
+      </label>
+
+      <!-- Step 2: Select Student -->
+      <label>Student:
+        <select id="resultStudent">
+          <option value="">Select student</option>
+        </select>
+      </label>
+
+      <!-- Step 3: Term, Academic Session, Gender -->
+      <label>Term:
+        <select id="resultTerm">
+          <option value="">Select Term</option>
+          <option value="First Term">First Term</option>
+          <option value="Second Term">Second Term</option>
+          <option value="Third Term">Third Term</option>
+        </select>
+      </label>
+
+      <label>Academic Session:
+        <input type="text" id="resultSession" placeholder="e.g., 2025/2026">
+      </label>
+
+      <label>Gender:
+        <select id="studentGender">
+          <option value="">Select Gender</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+        </select>
+      </label>
+
+      <!-- Step 4: Subjects container -->
+      <div id="resultSubjects"></div>
+
+    
+    <!-- Psychomotor Domain -->
+    <div>
+      <h3 class="font-semibold mb-2">Psychomotor Domain</h3>
+      <table class="w-full border-collapse border border-black text-center text-xs">
+        <thead>
+          <tr class="bg-gray-200">
+            <th class="border border-black px-2 py-1">Activity</th>
+            <th class="border border-black px-2 py-1">100</th>
+            <th class="border border-black px-2 py-1">85</th>
+            <th class="border border-black px-2 py-1">75</th>
+            <th class="border border-black px-2 py-1">65</th>
+            <th class="border border-black px-2 py-1">55</th>
+          </tr>
+        </thead>
+        <tbody id="psychomotorBody">
+          <tr>
+            <td class="text-left px-2 py-1">Handwriting</td>
+            <td><input type="radio" name="handwriting" value="100"></td>
+            <td><input type="radio" name="handwriting" value="85"></td>
+            <td><input type="radio" name="handwriting" value="75"></td>
+            <td><input type="radio" name="handwriting" value="65"></td>
+            <td><input type="radio" name="handwriting" value="55"></td>
+          </tr>
+          <tr>
+            <td class="text-left px-2 py-1">Sports</td>
+            <td><input type="radio" name="sports" value="100"></td>
+            <td><input type="radio" name="sports" value="85"></td>
+            <td><input type="radio" name="sports" value="75"></td>
+            <td><input type="radio" name="sports" value="65"></td>
+            <td><input type="radio" name="sports" value="55"></td>
+          </tr>
+          <tr>
+            <td class="text-left px-2 py-1">Games</td>
+            <td><input type="radio" name="games" value="100"></td>
+            <td><input type="radio" name="games" value="85"></td>
+            <td><input type="radio" name="games" value="75"></td>
+            <td><input type="radio" name="games" value="65"></td>
+            <td><input type="radio" name="games" value="55"></td>
+          </tr>
+          <tr>
+            <td class="text-left px-2 py-1">Crafts</td>
+            <td><input type="radio" name="crafts" value="100"></td>
+            <td><input type="radio" name="attentiveness" value="85"></td>
+            <td><input type="radio" name="crafts" value="75"></td>
+            <td><input type="radio" name="crafts" value="65"></td>
+            <td><input type="radio" name="crafts" value="55"></td>
+          </tr>
+          <tr>
+            <td class="text-left px-2 py-1">Handling of Tools</td>
+            <td><input type="radio" name="handling" value="100"></td>
+            <td><input type="radio" name="handling" value="85"></td>
+            <td><input type="radio" name="handling" value="75"></td>
+            <td><input type="radio" name="handling" value="65"></td>
+            <td><input type="radio" name="handling" value="55"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Affective Domain -->
+    <div>
+      <h3 class="font-semibold mb-2">Affective Domain</h3>
+      <table class="w-full border-collapse border border-black text-center text-xs">
+        <thead>
+          <tr class="bg-gray-200">
+            <th class="border border-black px-2 py-1">Trait</th>
+            <th class="border border-black px-2 py-1">100</th>
+            <th class="border border-black px-2 py-1">85</th>
+            <th class="border border-black px-2 py-1">75</th>
+            <th class="border border-black px-2 py-1">65</th>
+            <th class="border border-black px-2 py-1">55</th>
+          </tr>
+        </thead>
+        <tbody id="affectiveBody">
+          <tr>
+            <td class="text-left px-2 py-1">Politeness</td>
+            <td><input type="radio" name="politeness" value="100"></td>
+            <td><input type="radio" name="politeness" value="85"></td>
+            <td><input type="radio" name="politeness" value="75"></td>
+            <td><input type="radio" name="politeness" value="65"></td>
+            <td><input type="radio" name="politeness" value="55"></td>
+          </tr>
+          <tr>
+            <td class="text-left px-2 py-1">Responsibility</td>
+            <td><input type="radio" name="responsibility" value="100"></td>
+            <td><input type="radio" name="responsibility" value="85"></td>
+            <td><input type="radio" name="responsibility" value="75"></td>
+            <td><input type="radio" name="responsibility" value="65"></td>
+            <td><input type="radio" name="responsibility" value="55"></td>
+          </tr>
+          <tr>
+            <td class="text-left px-2 py-1">Leadership</td>
+            <td><input type="radio" name="leadership" value="100"></td>
+            <td><input type="radio" name="leadership" value="85"></td>
+            <td><input type="radio" name="leadership" value="75"></td>
+            <td><input type="radio" name="leadership" value="65"></td>
+            <td><input type="radio" name="leadership" value="55"></td>
+          </tr>
+          <tr>
+            <td class="text-left px-2 py-1">Honesty</td>
+            <td><input type="radio" name="honesty" value="100"></td>
+            <td><input type="radio" name="honesty" value="85"></td>
+            <td><input type="radio" name="leadership" value="75"></td>
+            <td><input type="radio" name="honesty" value="65"></td>
+            <td><input type="radio" name="honesty" value="55"></td>
+          </tr>
+          <tr>
+            <td class="text-left px-2 py-1">Creativity</td>
+            <td><input type="radio" name="creativity" value="100"></td>
+            <td><input type="radio" name="creativity" value="85"></td>
+            <td><input type="radio" name="creativity" value="75"></td>
+            <td><input type="radio" name="creativity" value="65"></td>
+            <td><input type="radio" name="creativity" value="55"></td>
+          </tr>
+          <tr>
+            <td class="text-left px-2 py-1">Punctuality</td>
+            <td><input type="radio" name="punctuality" value="100"></td>
+            <td><input type="radio" name="punctuality" value="85"></td>
+            <td><input type="radio" name="punctuality" value="75"></td>
+            <td><input type="radio" name="punctuality" value="65"></td>
+            <td><input type="radio" name="punctuality" value="55"></td>
+          </tr>
+          <tr>
+            <td class="text-left px-2 py-1">Obedience</td>
+            <td><input type="radio" name="obedience" value="100"></td>
+            <td><input type="radio" name="obedience" value="85"></td>
+            <td><input type="radio" name="obedience" value="75"></td>
+            <td><input type="radio" name="obedience" value="65"></td>
+            <td><input type="radio" name="obedience" value="55"></td>
+          </tr>
+          <tr>
+            <td class="text-left px-2 py-1">Neatness</td>
+            <td><input type="radio" name="neatness" value="100"></td>
+            <td><input type="radio" name="neatness" value="85"></td>
+            <td><input type="radio" name="neatness" value="75"></td>
+            <td><input type="radio" name="neatness" value="65"></td>
+            <td><input type="radio" name="neatness" value="55"></td>
+          </tr>
+          <tr>
+            <td class="text-left px-2 py-1">Sociability</td>
+            <td><input type="radio" name="sociability" value="100"></td>
+            <td><input type="radio" name="sociability" value="85"></td>
+            <td><input type="radio" name="sociability" value="75"></td>
+            <td><input type="radio" name="sociability" value="65"></td>
+            <td><input type="radio" name="sociability" value="55"></td>
+          </tr>
+        </tbody>
+        </tbody>
+        </tbody>
+        </tbody>
+        </tbody>
+        </tbody>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Comments Section -->
+    <div class="space-y-3">
+      <label class="block">
+        Teacher Comment
+        <textarea id="teacherComment" rows="2" class="w-full border p-2" placeholder="Teacher's comment here..."></textarea>
+      </label>
+    </div>
+    
+<!-- Attendance -->
+<div class="border p-4 rounded">
+  <h3 class="font-semibold mb-3">Attendance</h3>
+
+  <!-- Use grid with responsive columns -->
+  <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 gap-3">
+    <div>
+      <label class="block text-sm">Days School Opened</label>
+      <input type="number" id="daysOpened" class="input w-full" min="0" required>
+    </div>
+
+    <div>
+      <label class="block text-sm">Days Present</label>
+      <input type="number" id="daysPresent" class="input w-full" min="0" required>
+    </div>
+
+    <div>
+      <label class="block text-sm">Days Absent</label>
+      <input type="number" id="daysAbsent" class="input w-full" min="0" required>
+    </div>
+  </div>
+</div>
+
+  <!-- Term Duration -->
+  <div class="border p-4 rounded">
+    <h3 class="font-semibold mb-3">Term Duration</h3>
+
+    <div class="grid grid-cols-1 gap-3">
+      <div>
+        <label class="block text-sm">Term Begins</label>
+        <input type="date" id="termBegins" class="input" required>
+      </div>
+
+      <div>
+        <label class="block text-sm">Term Ends</label>
+        <input type="date" id="termEnds" class="input" required>
+      </div>
+
+      <div>
+        <label class="block text-sm">Next Term Begins</label>
+        <input type="date" id="nextTermBegins" class="input" required>
+      </div>
+    </div>
+  </div>
+  
+</div>
+    
+      <!-- Step 5: Submit results -->
+      <button type="submit">Save Result</button>
+    </form>
+  </div>
+</section>
+
+<section id="manageResults" class="section">
+  <h1>Manage Results</h1>
+
+  <label>Select Class
+    <select id="manageResultClass">
+      <option value="">--Select Class--</option>
+            <option>Pre-KG</option>
+            <option>KG 1</option>
+            <option>KG 2</option>
+            <option>KG 3</option>
+            <option>Primary 1</option>
+            <option>Primary 2</option>
+            <option>Primary 3</option>
+            <option>Primary 4</option>
+            <option>Primary 5</option>
+            <option>JSS 1</option>
+            <option>JSS 2</option>
+            <option>JSS 3</option>
+    </select>
+  </label>
+
+  <div id="manageStudentContainer" class="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+
+  <div id="editResultModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 p-4">
+    <div class="bg-white p-6 rounded-3xl w-full max-w-2xl relative max-h-[90vh] overflow-y-auto shadow-2xl">
+      <form id="editResultForm">
+        <div id="editResultSubjects"></div>
+        </form>
+    </div>
+  </div>
+</section>
+</body>
+</html>
